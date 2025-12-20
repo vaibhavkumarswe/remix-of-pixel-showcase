@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Editor from '@monaco-editor/react';
-import { Play, RotateCcw, ChevronDown, Terminal, Eye, Code2 } from 'lucide-react';
+import { Play, RotateCcw, Terminal, Eye, Code2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/store/hooks';
 import {
@@ -16,591 +16,8 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from '@/components/ui/resizable';
-
-interface Challenge {
-  id: string;
-  title: string;
-  description: string;
-  initialCode: string;
-  initialHtml?: string;
-  initialCss?: string;
-}
-
-const challenges: Challenge[] = [
-  {
-    id: 'counter',
-    title: 'Counter Component',
-    description: 'Build a counter with increment, decrement, and reset functionality.',
-    initialCode: `// Counter Challenge
-// Create a counter with +, -, and reset buttons
-
-const container = document.getElementById('app');
-
-let count = 0;
-
-function render() {
-  container.innerHTML = \`
-    <div class="counter-wrapper">
-      <h2 class="count">\${count}</h2>
-      <div class="buttons">
-        <button onclick="decrement()">-</button>
-        <button onclick="reset()">Reset</button>
-        <button onclick="increment()">+</button>
-      </div>
-    </div>
-  \`;
-}
-
-function increment() {
-  count++;
-  render();
-}
-
-function decrement() {
-  count--;
-  render();
-}
-
-function reset() {
-  count = 0;
-  render();
-}
-
-render();`,
-    initialCss: `.counter-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
-}
-
-.count {
-  font-size: 4rem;
-  font-weight: bold;
-  color: #8b5cf6;
-  margin: 0;
-}
-
-.buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.buttons button {
-  padding: 0.5rem 1.5rem;
-  font-size: 1.25rem;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-  color: white;
-  cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.buttons button:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
-}`,
-  },
-  {
-    id: 'todo',
-    title: 'Todo List',
-    description: 'Create a todo list with add, remove, and toggle complete functionality.',
-    initialCode: `// Todo List Challenge
-// Create a todo list with CRUD operations
-
-const container = document.getElementById('app');
-
-let todos = [
-  { id: 1, text: 'Learn JavaScript', completed: false },
-  { id: 2, text: 'Build projects', completed: true },
-];
-let nextId = 3;
-
-function render() {
-  container.innerHTML = \`
-    <div class="todo-app">
-      <h2>My Todos</h2>
-      <div class="add-todo">
-        <input type="text" id="todoInput" placeholder="Add new todo..." />
-        <button onclick="addTodo()">Add</button>
-      </div>
-      <ul class="todo-list">
-        \${todos.map(todo => \`
-          <li class="\${todo.completed ? 'completed' : ''}">
-            <input 
-              type="checkbox" 
-              \${todo.completed ? 'checked' : ''} 
-              onchange="toggleTodo(\${todo.id})"
-            />
-            <span>\${todo.text}</span>
-            <button onclick="removeTodo(\${todo.id})">×</button>
-          </li>
-        \`).join('')}
-      </ul>
-    </div>
-  \`;
-}
-
-function addTodo() {
-  const input = document.getElementById('todoInput');
-  if (input.value.trim()) {
-    todos.push({ id: nextId++, text: input.value.trim(), completed: false });
-    render();
-  }
-}
-
-function toggleTodo(id) {
-  todos = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-  render();
-}
-
-function removeTodo(id) {
-  todos = todos.filter(t => t.id !== id);
-  render();
-}
-
-render();`,
-    initialCss: `.todo-app {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-
-.todo-app h2 {
-  margin: 0 0 1rem;
-  color: #8b5cf6;
-}
-
-.add-todo {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.add-todo input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 2px solid #333;
-  border-radius: 6px;
-  background: #1a1a2e;
-  color: white;
-}
-
-.add-todo button {
-  padding: 0.5rem 1rem;
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.todo-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.todo-list li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: #1a1a2e;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-}
-
-.todo-list li.completed span {
-  text-decoration: line-through;
-  opacity: 0.6;
-}
-
-.todo-list li button {
-  margin-left: auto;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-}`,
-  },
-  {
-    id: 'accordion',
-    title: 'Accordion Component',
-    description: 'Build an accordion with expandable sections.',
-    initialCode: `// Accordion Challenge
-// Create an accordion component
-
-const container = document.getElementById('app');
-
-const items = [
-  { id: 1, title: 'What is JavaScript?', content: 'JavaScript is a programming language that enables interactive web pages.' },
-  { id: 2, title: 'What is React?', content: 'React is a JavaScript library for building user interfaces.' },
-  { id: 3, title: 'What is TypeScript?', content: 'TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.' },
-];
-
-let openId = null;
-
-function render() {
-  container.innerHTML = \`
-    <div class="accordion">
-      <h2>FAQ Accordion</h2>
-      \${items.map(item => \`
-        <div class="accordion-item \${openId === item.id ? 'open' : ''}">
-          <button class="accordion-header" onclick="toggle(\${item.id})">
-            <span>\${item.title}</span>
-            <span class="icon">\${openId === item.id ? '−' : '+'}</span>
-          </button>
-          <div class="accordion-content">
-            <p>\${item.content}</p>
-          </div>
-        </div>
-      \`).join('')}
-    </div>
-  \`;
-}
-
-function toggle(id) {
-  openId = openId === id ? null : id;
-  render();
-}
-
-render();`,
-    initialCss: `.accordion {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-
-.accordion h2 {
-  margin: 0 0 1rem;
-  color: #8b5cf6;
-}
-
-.accordion-item {
-  background: #1a1a2e;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  overflow: hidden;
-}
-
-.accordion-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.accordion-header:hover {
-  background: rgba(139, 92, 246, 0.1);
-}
-
-.icon {
-  font-size: 1.25rem;
-  color: #8b5cf6;
-}
-
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.accordion-item.open .accordion-content {
-  max-height: 200px;
-}
-
-.accordion-content p {
-  padding: 0 1rem 1rem;
-  margin: 0;
-  color: #a1a1aa;
-}`,
-  },
-  {
-    id: 'tabs',
-    title: 'Tabs Component',
-    description: 'Create a tabbed interface component.',
-    initialCode: `// Tabs Challenge
-// Create a tabs component
-
-const container = document.getElementById('app');
-
-const tabs = [
-  { id: 'html', label: 'HTML', content: 'HTML is the standard markup language for web pages.' },
-  { id: 'css', label: 'CSS', content: 'CSS describes how HTML elements should be displayed.' },
-  { id: 'js', label: 'JavaScript', content: 'JavaScript makes web pages interactive and dynamic.' },
-];
-
-let activeTab = 'html';
-
-function render() {
-  const currentTab = tabs.find(t => t.id === activeTab);
-  
-  container.innerHTML = \`
-    <div class="tabs-container">
-      <h2>Learn Web Development</h2>
-      <div class="tabs-header">
-        \${tabs.map(tab => \`
-          <button 
-            class="tab-btn \${activeTab === tab.id ? 'active' : ''}"
-            onclick="setActiveTab('\${tab.id}')"
-          >
-            \${tab.label}
-          </button>
-        \`).join('')}
-      </div>
-      <div class="tab-content">
-        <h3>\${currentTab.label}</h3>
-        <p>\${currentTab.content}</p>
-      </div>
-    </div>
-  \`;
-}
-
-function setActiveTab(id) {
-  activeTab = id;
-  render();
-}
-
-render();`,
-    initialCss: `.tabs-container {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-
-.tabs-container h2 {
-  margin: 0 0 1rem;
-  color: #8b5cf6;
-}
-
-.tabs-header {
-  display: flex;
-  gap: 0.25rem;
-  background: #1a1a2e;
-  padding: 0.25rem;
-  border-radius: 8px;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  background: transparent;
-  border: none;
-  color: #a1a1aa;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.tab-btn:hover {
-  color: white;
-}
-
-.tab-btn.active {
-  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-  color: white;
-}
-
-.tab-content {
-  background: #1a1a2e;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 0.5rem;
-}
-
-.tab-content h3 {
-  margin: 0 0 0.5rem;
-  color: #06b6d4;
-}
-
-.tab-content p {
-  margin: 0;
-  color: #a1a1aa;
-  line-height: 1.6;
-}`,
-  },
-  {
-    id: 'modal',
-    title: 'Modal Component',
-    description: 'Build a modal/dialog component with open and close functionality.',
-    initialCode: `// Modal Challenge
-// Create a modal component
-
-const container = document.getElementById('app');
-
-let isOpen = false;
-
-function render() {
-  container.innerHTML = \`
-    <div class="modal-demo">
-      <h2>Modal Component</h2>
-      <p>Click the button to open the modal</p>
-      <button class="open-btn" onclick="openModal()">Open Modal</button>
-      
-      \${isOpen ? \`
-        <div class="modal-overlay" onclick="closeModal()">
-          <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header">
-              <h3>Welcome!</h3>
-              <button class="close-btn" onclick="closeModal()">×</button>
-            </div>
-            <div class="modal-body">
-              <p>This is a modal dialog. You can put any content here.</p>
-              <p>Click outside or press the X button to close.</p>
-            </div>
-            <div class="modal-footer">
-              <button onclick="closeModal()">Cancel</button>
-              <button class="primary" onclick="handleConfirm()">Confirm</button>
-            </div>
-          </div>
-        </div>
-      \` : ''}
-    </div>
-  \`;
-}
-
-function openModal() {
-  isOpen = true;
-  render();
-}
-
-function closeModal() {
-  isOpen = false;
-  render();
-}
-
-function handleConfirm() {
-  console.log('Confirmed!');
-  closeModal();
-}
-
-render();`,
-    initialCss: `.modal-demo {
-  text-align: center;
-  padding: 2rem;
-}
-
-.modal-demo h2 {
-  color: #8b5cf6;
-  margin: 0 0 0.5rem;
-}
-
-.modal-demo > p {
-  color: #a1a1aa;
-  margin: 0 0 1.5rem;
-}
-
-.open-btn {
-  padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.open-btn:hover {
-  transform: scale(1.05);
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal {
-  background: #1a1a2e;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #333;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: white;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #a1a1aa;
-  font-size: 1.5rem;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-body p {
-  margin: 0 0 0.5rem;
-  color: #a1a1aa;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #333;
-}
-
-.modal-footer button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #333;
-  color: white;
-}
-
-.modal-footer button.primary {
-  background: #8b5cf6;
-}`,
-  },
-];
+import { challenges, languageLabels, languageColors, type LanguageMode, type Challenge } from '@/data/challenges';
+import EditorSettings, { defaultEditorSettings, type EditorSettingsState } from '@/components/coding/EditorSettings';
 
 interface ConsoleLog {
   type: 'log' | 'error' | 'warn' | 'info';
@@ -610,12 +27,28 @@ interface ConsoleLog {
 
 const CodingChallenges = () => {
   const theme = useAppSelector((state) => state.theme.mode);
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageMode>('javascript');
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge>(challenges[0]);
   const [code, setCode] = useState(challenges[0].initialCode);
   const [css, setCss] = useState(challenges[0].initialCss || '');
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([]);
-  const [activeTab, setActiveTab] = useState<'js' | 'css'>('js');
+  const [activeTab, setActiveTab] = useState<'code' | 'css'>('code');
+  const [previewHtml, setPreviewHtml] = useState('');
+  const [editorSettings, setEditorSettings] = useState<EditorSettingsState>(defaultEditorSettings);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const filteredChallenges = challenges.filter(c => c.language === selectedLanguage);
+
+  const handleLanguageChange = (language: LanguageMode) => {
+    setSelectedLanguage(language);
+    const firstChallenge = challenges.find(c => c.language === language);
+    if (firstChallenge) {
+      setSelectedChallenge(firstChallenge);
+      setCode(firstChallenge.initialCode);
+      setCss(firstChallenge.initialCss || '');
+      setConsoleLogs([]);
+    }
+  };
 
   const handleChallengeChange = (challengeId: string) => {
     const challenge = challenges.find((c) => c.id === challengeId);
@@ -633,15 +66,39 @@ const CodingChallenges = () => {
     setConsoleLogs([]);
   };
 
-  const [previewHtml, setPreviewHtml] = useState('');
+  const getEditorLanguage = () => {
+    if (activeTab === 'css') return 'css';
+    switch (selectedLanguage) {
+      case 'typescript': return 'typescript';
+      case 'react': return 'javascript';
+      default: return 'javascript';
+    }
+  };
 
   const runCode = useCallback(() => {
     setConsoleLogs([]);
+    
+    const isReact = selectedLanguage === 'react';
+    const isTypeScript = selectedLanguage === 'typescript';
+    
+    // For TypeScript, we'll just run it as JavaScript (simulated transpile)
+    const processedCode = isTypeScript 
+      ? code.replace(/:\s*(string|number|boolean|void|any|unknown|never|object|null|undefined|\w+\[\]|Record<[^>]+>|Pick<[^>]+>|Omit<[^>]+>|Partial<[^>]+>|Required<[^>]+>|\{[^}]*\})/g, '')
+           .replace(/<\w+>/g, '')
+           .replace(/as \w+/g, '')
+           .replace(/interface\s+\w+\s*\{[^}]*\}/g, '')
+           .replace(/type\s+\w+\s*=\s*[^;]+;/g, '')
+      : code;
     
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
+          ${isReact ? `
+            <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+            <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+            <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+          ` : ''}
           <style>
             * { box-sizing: border-box; margin: 0; padding: 0; }
             body { 
@@ -696,19 +153,30 @@ const CodingChallenges = () => {
                 return false;
               };
             })();
-            
-            try {
-              ${code}
-            } catch (error) {
-              console.error(error.message);
-            }
           </script>
+          ${isReact ? `
+            <script type="text/babel">
+              try {
+                ${processedCode}
+              } catch (error) {
+                console.error(error.message);
+              }
+            </script>
+          ` : `
+            <script>
+              try {
+                ${processedCode}
+              } catch (error) {
+                console.error(error.message);
+              }
+            </script>
+          `}
         </body>
       </html>
     `;
     
     setPreviewHtml(html);
-  }, [code, css]);
+  }, [code, css, selectedLanguage]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -748,22 +216,43 @@ const CodingChallenges = () => {
           </p>
         </motion.div>
 
-        {/* Challenge Selector */}
+        {/* Controls */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-6 flex flex-wrap items-center gap-4"
         >
+          {/* Language Selector */}
+          <div className="flex gap-1 p-1 glass-card rounded-lg border border-border/50">
+            {(Object.keys(languageLabels) as LanguageMode[]).map((lang) => (
+              <button
+                key={lang}
+                onClick={() => handleLanguageChange(lang)}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  selectedLanguage === lang
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+                style={{
+                  borderLeft: selectedLanguage === lang ? `3px solid ${languageColors[lang]}` : undefined,
+                }}
+              >
+                {languageLabels[lang]}
+              </button>
+            ))}
+          </div>
+
+          {/* Challenge Selector */}
           <Select
             value={selectedChallenge.id}
             onValueChange={handleChallengeChange}
           >
-            <SelectTrigger className="w-[280px] glass-card border-border/50">
+            <SelectTrigger className="w-[240px] glass-card border-border/50">
               <SelectValue placeholder="Select a challenge" />
             </SelectTrigger>
             <SelectContent>
-              {challenges.map((challenge) => (
+              {filteredChallenges.map((challenge) => (
                 <SelectItem key={challenge.id} value={challenge.id}>
                   {challenge.title}
                 </SelectItem>
@@ -797,9 +286,20 @@ const CodingChallenges = () => {
           transition={{ delay: 0.15 }}
           className="mb-6 p-4 glass-card rounded-xl border border-border/50"
         >
-          <h3 className="font-semibold text-foreground mb-1">
-            {selectedChallenge.title}
-          </h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-semibold text-foreground">
+              {selectedChallenge.title}
+            </h3>
+            <span 
+              className="px-2 py-0.5 rounded text-xs font-medium"
+              style={{ 
+                backgroundColor: `${languageColors[selectedLanguage]}20`,
+                color: languageColors[selectedLanguage],
+              }}
+            >
+              {languageLabels[selectedLanguage]}
+            </span>
+          </div>
           <p className="text-sm text-muted-foreground">
             {selectedChallenge.description}
           </p>
@@ -817,39 +317,45 @@ const CodingChallenges = () => {
             <ResizablePanel defaultSize={50} minSize={30}>
               <div className="h-full flex flex-col">
                 {/* Editor Tabs */}
-                <div className="flex items-center gap-1 px-2 py-1 bg-background/50 border-b border-border/50">
-                  <button
-                    onClick={() => setActiveTab('js')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      activeTab === 'js'
-                        ? 'bg-primary/20 text-primary'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <Code2 className="h-4 w-4" />
-                    JavaScript
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('css')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      activeTab === 'css'
-                        ? 'bg-primary/20 text-primary'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <Code2 className="h-4 w-4" />
-                    CSS
-                  </button>
+                <div className="flex items-center justify-between px-2 py-1 bg-background/50 border-b border-border/50">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setActiveTab('code')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        activeTab === 'code'
+                          ? 'bg-primary/20 text-primary'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Code2 className="h-4 w-4" />
+                      {languageLabels[selectedLanguage]}
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('css')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        activeTab === 'css'
+                          ? 'bg-primary/20 text-primary'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Code2 className="h-4 w-4" />
+                      CSS
+                    </button>
+                  </div>
+                  <EditorSettings 
+                    settings={editorSettings} 
+                    onChange={setEditorSettings}
+                  />
                 </div>
 
                 {/* Monaco Editor */}
                 <div className="flex-1">
                   <Editor
                     height="100%"
-                    language={activeTab === 'js' ? 'javascript' : 'css'}
-                    value={activeTab === 'js' ? code : css}
+                    language={getEditorLanguage()}
+                    value={activeTab === 'code' ? code : css}
                     onChange={(value) => {
-                      if (activeTab === 'js') {
+                      if (activeTab === 'code') {
                         setCode(value || '');
                       } else {
                         setCss(value || '');
@@ -857,14 +363,15 @@ const CodingChallenges = () => {
                     }}
                     theme={theme === 'dark' ? 'vs-dark' : 'light'}
                     options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      fontFamily: 'JetBrains Mono, monospace',
-                      lineNumbers: 'on',
+                      minimap: { enabled: editorSettings.minimap },
+                      fontSize: editorSettings.fontSize,
+                      fontFamily: editorSettings.fontFamily,
+                      lineNumbers: editorSettings.lineNumbers ? 'on' : 'off',
                       scrollBeyondLastLine: false,
-                      wordWrap: 'on',
+                      wordWrap: editorSettings.wordWrap ? 'on' : 'off',
                       automaticLayout: true,
                       padding: { top: 16 },
+                      tabSize: editorSettings.tabSize,
                     }}
                   />
                 </div>
