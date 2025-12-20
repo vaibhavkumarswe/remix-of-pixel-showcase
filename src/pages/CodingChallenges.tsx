@@ -633,88 +633,81 @@ const CodingChallenges = () => {
     setConsoleLogs([]);
   };
 
+  const [previewHtml, setPreviewHtml] = useState('');
+
   const runCode = useCallback(() => {
     setConsoleLogs([]);
     
-    if (iframeRef.current) {
-      const iframe = iframeRef.current;
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      
-      if (iframeDoc) {
-        const html = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                * { box-sizing: border-box; margin: 0; padding: 0; }
-                body { 
-                  font-family: system-ui, -apple-system, sans-serif;
-                  background: #0f0f1a;
-                  color: white;
-                  min-height: 100vh;
-                }
-                ${css}
-              </style>
-            </head>
-            <body>
-              <div id="app"></div>
-              <script>
-                (function() {
-                  const originalConsole = {
-                    log: console.log,
-                    error: console.error,
-                    warn: console.warn,
-                    info: console.info
-                  };
-                  
-                  function sendToParent(type, args) {
-                    window.parent.postMessage({
-                      type: 'console',
-                      logType: type,
-                      content: args.map(arg => 
-                        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-                      ).join(' ')
-                    }, '*');
-                  }
-                  
-                  console.log = (...args) => {
-                    originalConsole.log(...args);
-                    sendToParent('log', args);
-                  };
-                  console.error = (...args) => {
-                    originalConsole.error(...args);
-                    sendToParent('error', args);
-                  };
-                  console.warn = (...args) => {
-                    originalConsole.warn(...args);
-                    sendToParent('warn', args);
-                  };
-                  console.info = (...args) => {
-                    originalConsole.info(...args);
-                    sendToParent('info', args);
-                  };
-                  
-                  window.onerror = function(msg, url, line, col, error) {
-                    sendToParent('error', [msg + ' (line ' + line + ')']);
-                    return false;
-                  };
-                })();
-                
-                try {
-                  ${code}
-                } catch (error) {
-                  console.error(error.message);
-                }
-              </script>
-            </body>
-          </html>
-        `;
-        
-        iframeDoc.open();
-        iframeDoc.write(html);
-        iframeDoc.close();
-      }
-    }
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { 
+              font-family: system-ui, -apple-system, sans-serif;
+              background: #0f0f1a;
+              color: white;
+              min-height: 100vh;
+            }
+            ${css}
+          </style>
+        </head>
+        <body>
+          <div id="app"></div>
+          <script>
+            (function() {
+              const originalConsole = {
+                log: console.log,
+                error: console.error,
+                warn: console.warn,
+                info: console.info
+              };
+              
+              function sendToParent(type, args) {
+                window.parent.postMessage({
+                  type: 'console',
+                  logType: type,
+                  content: args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                  ).join(' ')
+                }, '*');
+              }
+              
+              console.log = (...args) => {
+                originalConsole.log(...args);
+                sendToParent('log', args);
+              };
+              console.error = (...args) => {
+                originalConsole.error(...args);
+                sendToParent('error', args);
+              };
+              console.warn = (...args) => {
+                originalConsole.warn(...args);
+                sendToParent('warn', args);
+              };
+              console.info = (...args) => {
+                originalConsole.info(...args);
+                sendToParent('info', args);
+              };
+              
+              window.onerror = function(msg, url, line, col, error) {
+                sendToParent('error', [msg + ' (line ' + line + ')']);
+                return false;
+              };
+            })();
+            
+            try {
+              ${code}
+            } catch (error) {
+              console.error(error.message);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+    
+    setPreviewHtml(html);
   }, [code, css]);
 
   useEffect(() => {
@@ -896,6 +889,7 @@ const CodingChallenges = () => {
                         title="Preview"
                         className="w-full h-full border-0"
                         sandbox="allow-scripts"
+                        srcDoc={previewHtml}
                       />
                     </div>
                   </div>
