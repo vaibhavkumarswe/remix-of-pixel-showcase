@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { FloatingCodeElement } from '@/components/shared/CodeBackground';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,8 +51,14 @@ export const SkillsSection = () => {
   }, []);
 
   return (
-    <section className="py-24 px-6 bg-secondary/30">
-      <div className="container mx-auto">
+    <section className="py-24 px-6 bg-secondary/30 relative overflow-hidden">
+      {/* Section-specific floating elements */}
+      <FloatingCodeElement delay={0.1} duration={4.5} className="text-primary/20 text-lg font-mono" style={{ top: '8%', right: '8%' }}>{'npm'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.3} duration={5} className="text-accent/20 text-lg font-mono" style={{ top: '25%', left: '5%' }}>{'yarn'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.5} duration={4} className="text-primary/15 text-xl font-mono" style={{ bottom: '20%', left: '8%' }}>{'tsx'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.7} duration={5.5} className="text-accent/15 text-lg font-mono" style={{ bottom: '10%', right: '12%' }}>{'jsx'}</FloatingCodeElement>
+
+      <div className="container mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { FloatingCodeElement } from '@/components/shared/CodeBackground';
 
 export const CTASection = () => {
   return (
@@ -25,6 +26,12 @@ export const CTASection = () => {
           }}
         />
       </div>
+
+      {/* Floating Code Elements */}
+      <FloatingCodeElement delay={0.2} duration={4} className="text-primary/25 text-xl font-mono font-bold" style={{ top: '15%', left: '10%' }}>{'git push'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.4} duration={5} className="text-accent/25 text-lg font-mono" style={{ top: '25%', right: '15%' }}>{'deploy'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.6} duration={4.5} className="text-primary/20 text-lg font-mono" style={{ bottom: '20%', left: '15%' }}>{'build'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.8} duration={5.5} className="text-accent/20 text-xl font-mono" style={{ bottom: '25%', right: '10%' }}>{'ship'}</FloatingCodeElement>
 
       <div className="container mx-auto relative z-10">
         <motion.div

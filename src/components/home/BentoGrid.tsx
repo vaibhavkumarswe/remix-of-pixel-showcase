@@ -13,6 +13,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { FloatingCodeElement } from '@/components/shared/CodeBackground';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -119,8 +120,13 @@ export const BentoGrid = () => {
   }, []);
 
   return (
-    <section className="py-24 px-6">
-      <div className="container mx-auto">
+    <section className="py-24 px-6 relative overflow-hidden">
+      {/* Section-specific floating elements */}
+      <FloatingCodeElement delay={0.2} duration={5} className="text-primary/20 text-xl font-mono" style={{ top: '10%', left: '5%' }}>{'const'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.4} duration={4} className="text-accent/20 text-lg font-mono" style={{ top: '20%', right: '10%' }}>{'return'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.6} duration={5.5} className="text-primary/15 text-lg font-mono" style={{ bottom: '15%', right: '5%' }}>{'export'}</FloatingCodeElement>
+
+      <div className="container mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
