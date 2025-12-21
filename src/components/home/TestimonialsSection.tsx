@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FloatingCodeElement } from '@/components/shared/CodeBackground';
 
 const testimonials = [
   {
@@ -61,8 +62,13 @@ export const TestimonialsSection = () => {
   };
 
   return (
-    <section className="py-24 px-6 bg-secondary/30 overflow-hidden">
-      <div className="container mx-auto">
+    <section className="py-24 px-6 bg-secondary/30 overflow-hidden relative">
+      {/* Floating elements */}
+      <FloatingCodeElement delay={0.2} duration={5} className="text-primary/20 text-lg font-mono" style={{ top: '15%', left: '8%' }}>{'★★★'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.5} duration={4} className="text-accent/20 text-lg font-mono" style={{ top: '20%', right: '12%' }}>{'100%'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.7} duration={5.5} className="text-primary/15 text-xl font-mono" style={{ bottom: '18%', left: '10%' }}>{'A+'}</FloatingCodeElement>
+
+      <div className="container mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

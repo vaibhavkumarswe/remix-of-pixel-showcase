@@ -3,37 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, MousePointer2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-
-const FloatingShape = ({ 
-  delay, 
-  duration, 
-  className,
-  children 
-}: { 
-  delay: number; 
-  duration: number; 
-  className: string;
-  children?: React.ReactNode;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0 }}
-    animate={{ 
-      opacity: 1, 
-      scale: 1,
-      y: [0, -20, 0],
-      rotate: [0, 10, -10, 0]
-    }}
-    transition={{
-      opacity: { delay, duration: 0.5 },
-      scale: { delay, duration: 0.5 },
-      y: { delay, duration, repeat: Infinity, ease: "easeInOut" },
-      rotate: { delay, duration: duration * 1.5, repeat: Infinity, ease: "easeInOut" }
-    }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
+import { FloatingCodeElement } from '@/components/shared/CodeBackground';
 
 const InteractiveOrb = ({ mouseX, mouseY }: { mouseX: any; mouseY: any }) => {
   const x = useTransform(mouseX, [0, 1], [-50, 50]);
@@ -47,7 +17,7 @@ const InteractiveOrb = ({ mouseX, mouseY }: { mouseX: any; mouseY: any }) => {
       <div 
         className="w-full h-full rounded-full animate-pulse-glow"
         style={{
-          background: 'radial-gradient(circle, hsl(var(--primary) / 0.3) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, hsl(var(--primary) / 0.25) 0%, hsl(var(--accent) / 0.1) 40%, transparent 70%)',
         }}
       />
     </motion.div>
@@ -134,19 +104,32 @@ export const HeroSection = () => {
       {/* Interactive Background */}
       <InteractiveOrb mouseX={smoothMouseX} mouseY={smoothMouseY} />
       
-      {/* Floating Decorative Elements */}
-      <FloatingShape delay={0.2} duration={4} className="absolute top-20 left-[10%] w-16 h-16 rounded-2xl bg-primary/20 backdrop-blur-sm border border-primary/30" />
-      <FloatingShape delay={0.4} duration={5} className="absolute top-40 right-[20%] w-12 h-12 rounded-full bg-accent/20 backdrop-blur-sm border border-accent/30" />
-      <FloatingShape delay={0.6} duration={3.5} className="absolute bottom-32 left-[15%] w-20 h-20 rounded-3xl bg-primary/10 backdrop-blur-sm border border-primary/20 rotate-12" />
-      <FloatingShape delay={0.3} duration={4.5} className="absolute bottom-48 right-[30%] w-8 h-8 rounded-lg bg-accent/30 backdrop-blur-sm border border-accent/40" />
-      
-      {/* Grid Pattern Overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
-        }}
+      {/* Floating Code Elements */}
+      <FloatingCodeElement delay={0.2} duration={4} className="text-primary/30 text-2xl font-mono font-bold" style={{ top: '15%', left: '8%' }}>{'</>'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.4} duration={5} className="text-accent/25 text-xl font-mono" style={{ top: '25%', right: '15%' }}>{'{ }'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.6} duration={3.5} className="text-primary/25 text-lg font-mono" style={{ bottom: '25%', left: '12%' }}>{'( )'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.3} duration={4.5} className="text-accent/30 text-xl font-mono font-bold" style={{ bottom: '35%', right: '25%' }}>{'=>'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.5} duration={4} className="text-primary/20 text-lg font-mono" style={{ top: '45%', left: '3%' }}>{'&&'}</FloatingCodeElement>
+      <FloatingCodeElement delay={0.7} duration={5} className="text-accent/20 text-lg font-mono" style={{ top: '60%', right: '8%' }}>{'==='}</FloatingCodeElement>
+
+      {/* Floating Shapes */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1, y: [0, -20, 0] }}
+        transition={{ delay: 0.2, duration: 4, y: { repeat: Infinity, ease: "easeInOut" } }}
+        className="absolute top-20 left-[10%] w-16 h-16 rounded-2xl bg-primary/15 backdrop-blur-sm border border-primary/20"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1, y: [0, -15, 0], rotate: [0, 10, 0] }}
+        transition={{ delay: 0.4, duration: 5, y: { repeat: Infinity, ease: "easeInOut" }, rotate: { repeat: Infinity, ease: "easeInOut" } }}
+        className="absolute top-40 right-[20%] w-12 h-12 rounded-full bg-accent/15 backdrop-blur-sm border border-accent/20"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1, y: [0, -18, 0] }}
+        transition={{ delay: 0.6, duration: 3.5, y: { repeat: Infinity, ease: "easeInOut" } }}
+        className="absolute bottom-32 left-[15%] w-20 h-20 rounded-3xl bg-primary/10 backdrop-blur-sm border border-primary/15 rotate-12"
       />
 
       <div className="container mx-auto px-6 relative z-10">
