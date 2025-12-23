@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { toggleTheme } from '@/store/themeSlice';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
 const navItems = [
   { name: 'Home', path: '/' },
@@ -18,8 +17,6 @@ const navItems = [
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const dispatch = useAppDispatch();
-  const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <motion.header
@@ -64,24 +61,7 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => dispatch(toggleTheme())}
-              className="rounded-full"
-            >
-              <motion.div
-                initial={false}
-                animate={{ rotate: theme === 'dark' ? 0 : 180 }}
-                transition={{ duration: 0.3 }}
-              >
-                {theme === 'dark' ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Sun className="h-5 w-5" />
-                )}
-              </motion.div>
-            </Button>
+            <ThemeToggle />
 
             {/* Mobile Menu Button */}
             <Button
