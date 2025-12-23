@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MapPin, Calendar, Award, BookOpen } from 'lucide-react';
+import { GitHubStats } from '@/components/shared/GitHubStats';
+import { SkillsRadar } from '@/components/shared/SkillsRadar';
+import { ResumeButton } from '@/components/shared/ResumePreview';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -135,6 +138,26 @@ const About = () => {
             ))}
           </motion.div>
         </div>
+
+        {/* GitHub Stats */}
+        <div className="mb-24">
+          <GitHubStats />
+        </div>
+
+        {/* Skills Radar */}
+        <div className="mb-24">
+          <SkillsRadar />
+        </div>
+
+        {/* Resume Download */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex justify-center mb-16"
+        >
+          <ResumeButton />
+        </motion.div>
 
         {/* Timeline */}
         <motion.div
