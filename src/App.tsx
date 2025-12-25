@@ -12,6 +12,8 @@ import Projects from "./pages/Projects";
 import Games from "./pages/Games";
 import CodingChallenges from "./pages/CodingChallenges";
 import Contact from "./pages/Contact";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/about" element={<About />} />
               <Route path="/projects" element={<Projects />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/games" element={<Games />} />
               <Route path="/coding" element={<CodingChallenges />} />
               <Route path="/contact" element={<Contact />} />
