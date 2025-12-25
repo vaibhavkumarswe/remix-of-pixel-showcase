@@ -10,36 +10,13 @@ import type { NavItem } from './types';
 // ==========================================
 
 export const mainNavItems: NavItem[] = [
-  { 
-    name: 'Home', 
-    path: '/',
-    description: 'Welcome to my portfolio'
-  },
-  { 
-    name: 'About', 
-    path: '/about',
-    description: 'Learn more about me'
-  },
-  { 
-    name: 'Projects', 
-    path: '/projects',
-    description: 'View my work'
-  },
-  { 
-    name: 'Games', 
-    path: '/games',
-    description: 'Play interactive games'
-  },
-  { 
-    name: 'Coding', 
-    path: '/coding',
-    description: 'Practice coding challenges'
-  },
-  { 
-    name: 'Contact', 
-    path: '/contact',
-    description: 'Get in touch'
-  },
+  { name: 'Home', path: '/', description: 'Welcome to my portfolio' },
+  { name: 'About', path: '/about', description: 'Learn more about me' },
+  { name: 'Projects', path: '/projects', description: 'View my work' },
+  { name: 'Blog', path: '/blog', description: 'Technical articles' },
+  { name: 'Games', path: '/games', description: 'Play interactive games' },
+  { name: 'Coding', path: '/coding', description: 'Practice coding challenges' },
+  { name: 'Contact', path: '/contact', description: 'Get in touch' },
 ];
 
 // ==========================================
