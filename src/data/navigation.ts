@@ -14,8 +14,9 @@ export const mainNavItems: NavItem[] = [
   { name: 'About', path: '/about', description: 'Learn more about me' },
   { name: 'Projects', path: '/projects', description: 'View my work' },
   { name: 'Blog', path: '/blog', description: 'Technical articles' },
-  { name: 'Games', path: '/games', description: 'Play interactive games' },
+  { name: 'Ask AI', path: '/ask-ai', description: 'Chat with AI about me' },
   { name: 'Coding', path: '/coding', description: 'Practice coding challenges' },
+  { name: 'Games', path: '/games', description: 'Play interactive games' },
   { name: 'Contact', path: '/contact', description: 'Get in touch' },
 ];
 
@@ -37,6 +38,7 @@ export const footerNavItems: NavItem[] = [
 export const quickLinks: NavItem[] = [
   { name: 'View Projects', path: '/projects' },
   { name: 'About Me', path: '/about' },
+  { name: 'Ask AI', path: '/ask-ai' },
   { name: 'Get in Touch', path: '/contact' },
   { name: 'Play Games', path: '/games' },
   { name: 'Coding Challenges', path: '/coding' },

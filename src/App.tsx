@@ -11,6 +11,8 @@ import About from "./pages/About";
 import Projects from "./pages/Projects";
 import Games from "./pages/Games";
 import CodingChallenges from "./pages/CodingChallenges";
+import ChallengeEditor from "./pages/ChallengeEditor";
+import AskAI from "./pages/AskAI";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -34,6 +36,8 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/games" element={<Games />} />
               <Route path="/coding" element={<CodingChallenges />} />
+              <Route path="/coding/:challengeId" element={<ChallengeEditor />} />
+              <Route path="/ask-ai" element={<AskAI />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
