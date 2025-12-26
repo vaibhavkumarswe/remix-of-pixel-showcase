@@ -1,459 +1,328 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Editor from '@monaco-editor/react';
-import { Play, RotateCcw, Terminal, Eye, Code2 } from 'lucide-react';
+import { 
+  Code2, 
+  Search, 
+  Sparkles, 
+  Zap, 
+  Trophy,
+  Filter,
+  ChevronRight,
+  Star
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useAppSelector } from '@/store/hooks';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from '@/components/ui/resizable';
-import { challenges, languageLabels, languageColors, type LanguageMode, type Challenge } from '@/data/challenges';
-import EditorSettings, { defaultEditorSettings, type EditorSettingsState } from '@/components/coding/EditorSettings';
-
-interface ConsoleLog {
-  type: 'log' | 'error' | 'warn' | 'info';
-  content: string;
-  timestamp: Date;
-}
+  challenges,
+  languageLabels,
+  languageColors,
+  difficultyLabels,
+  difficultyColors,
+  languageDescriptions,
+  getChallengeCounts,
+  type LanguageMode,
+  type ChallengeDifficulty,
+} from '@/data/challenges/index';
 
 const CodingChallenges = () => {
-  const theme = useAppSelector((state) => state.theme.mode);
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageMode>('javascript');
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge>(challenges[0]);
-  const [code, setCode] = useState(challenges[0].initialCode);
-  const [css, setCss] = useState(challenges[0].initialCss || '');
-  const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([]);
-  const [activeTab, setActiveTab] = useState<'code' | 'css'>('code');
-  const [previewHtml, setPreviewHtml] = useState('');
-  const [editorSettings, setEditorSettings] = useState<EditorSettingsState>(defaultEditorSettings);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageMode | 'all'>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<ChallengeDifficulty | 'all'>('all');
+  
+  const counts = getChallengeCounts();
+  
+  const filteredChallenges = useMemo(() => {
+    return challenges.filter(challenge => {
+      const matchesSearch = searchQuery === '' || 
+        challenge.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        challenge.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        challenge.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      const matchesLanguage = selectedLanguage === 'all' || challenge.language === selectedLanguage;
+      const matchesDifficulty = selectedDifficulty === 'all' || challenge.difficulty === selectedDifficulty;
+      
+      return matchesSearch && matchesLanguage && matchesDifficulty;
+    });
+  }, [searchQuery, selectedLanguage, selectedDifficulty]);
 
-  const filteredChallenges = challenges.filter(c => c.language === selectedLanguage);
-
-  const handleLanguageChange = (language: LanguageMode) => {
-    setSelectedLanguage(language);
-    const firstChallenge = challenges.find(c => c.language === language);
-    if (firstChallenge) {
-      setSelectedChallenge(firstChallenge);
-      setCode(firstChallenge.initialCode);
-      setCss(firstChallenge.initialCss || '');
-      setConsoleLogs([]);
-    }
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
   };
 
-  const handleChallengeChange = (challengeId: string) => {
-    const challenge = challenges.find((c) => c.id === challengeId);
-    if (challenge) {
-      setSelectedChallenge(challenge);
-      setCode(challenge.initialCode);
-      setCss(challenge.initialCss || '');
-      setConsoleLogs([]);
-    }
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 100,
+        damping: 15,
+      },
+    },
   };
-
-  const handleReset = () => {
-    setCode(selectedChallenge.initialCode);
-    setCss(selectedChallenge.initialCss || '');
-    setConsoleLogs([]);
-  };
-
-  const getEditorLanguage = () => {
-    if (activeTab === 'css') return 'css';
-    switch (selectedLanguage) {
-      case 'typescript': return 'typescript';
-      case 'react': return 'javascript';
-      default: return 'javascript';
-    }
-  };
-
-  const runCode = useCallback(() => {
-    setConsoleLogs([]);
-    
-    const isReact = selectedLanguage === 'react';
-    const isTypeScript = selectedLanguage === 'typescript';
-    
-    // For TypeScript, we'll just run it as JavaScript (simulated transpile)
-    const processedCode = isTypeScript 
-      ? code.replace(/:\s*(string|number|boolean|void|any|unknown|never|object|null|undefined|\w+\[\]|Record<[^>]+>|Pick<[^>]+>|Omit<[^>]+>|Partial<[^>]+>|Required<[^>]+>|\{[^}]*\})/g, '')
-           .replace(/<\w+>/g, '')
-           .replace(/as \w+/g, '')
-           .replace(/interface\s+\w+\s*\{[^}]*\}/g, '')
-           .replace(/type\s+\w+\s*=\s*[^;]+;/g, '')
-      : code;
-    
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          ${isReact ? `
-            <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-            <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-            <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-          ` : ''}
-          <style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { 
-              font-family: system-ui, -apple-system, sans-serif;
-              background: #0f0f1a;
-              color: white;
-              min-height: 100vh;
-            }
-            ${css}
-          </style>
-        </head>
-        <body>
-          <div id="app"></div>
-          <script>
-            (function() {
-              const originalConsole = {
-                log: console.log,
-                error: console.error,
-                warn: console.warn,
-                info: console.info
-              };
-              
-              function sendToParent(type, args) {
-                window.parent.postMessage({
-                  type: 'console',
-                  logType: type,
-                  content: args.map(arg => 
-                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-                  ).join(' ')
-                }, '*');
-              }
-              
-              console.log = (...args) => {
-                originalConsole.log(...args);
-                sendToParent('log', args);
-              };
-              console.error = (...args) => {
-                originalConsole.error(...args);
-                sendToParent('error', args);
-              };
-              console.warn = (...args) => {
-                originalConsole.warn(...args);
-                sendToParent('warn', args);
-              };
-              console.info = (...args) => {
-                originalConsole.info(...args);
-                sendToParent('info', args);
-              };
-              
-              window.onerror = function(msg, url, line, col, error) {
-                sendToParent('error', [msg + ' (line ' + line + ')']);
-                return false;
-              };
-            })();
-          </script>
-          ${isReact ? `
-            <script type="text/babel">
-              try {
-                ${processedCode}
-              } catch (error) {
-                console.error(error.message);
-              }
-            </script>
-          ` : `
-            <script>
-              try {
-                ${processedCode}
-              } catch (error) {
-                console.error(error.message);
-              }
-            </script>
-          `}
-        </body>
-      </html>
-    `;
-    
-    setPreviewHtml(html);
-  }, [code, css, selectedLanguage]);
-
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'console') {
-        setConsoleLogs((prev) => [
-          ...prev,
-          {
-            type: event.data.logType,
-            content: event.data.content,
-            timestamp: new Date(),
-          },
-        ]);
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  useEffect(() => {
-    runCode();
-  }, [runCode]);
 
   return (
     <div className="min-h-screen pt-20">
       <div className="container mx-auto px-4 py-8">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="text-center mb-12"
         >
-          <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-2">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+            <Code2 className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Practice Mode</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold gradient-text mb-4">
             FE Machine Coding
           </h1>
-          <p className="text-muted-foreground">
-            Practice frontend interview questions with live code editor
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Master frontend interview challenges with our interactive code editor. 
+            Choose a challenge, write code, and see results instantly.
           </p>
         </motion.div>
 
-        {/* Controls */}
+        {/* Stats Cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 flex flex-wrap items-center gap-4"
+          className="grid grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto"
         >
-          {/* Language Selector */}
-          <div className="flex gap-1 p-1 glass-card rounded-lg border border-border/50">
-            {(Object.keys(languageLabels) as LanguageMode[]).map((lang) => (
-              <button
-                key={lang}
-                onClick={() => handleLanguageChange(lang)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  selectedLanguage === lang
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
+          {(Object.keys(languageLabels) as LanguageMode[]).map((lang, index) => (
+            <motion.button
+              key={lang}
+              onClick={() => setSelectedLanguage(selectedLanguage === lang ? 'all' : lang)}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className={`relative p-4 rounded-2xl border transition-all overflow-hidden group ${
+                selectedLanguage === lang 
+                  ? 'border-primary bg-primary/10' 
+                  : 'border-border/50 glass-card hover:border-primary/50'
+              }`}
+            >
+              {/* Glow effect */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  borderLeft: selectedLanguage === lang ? `3px solid ${languageColors[lang]}` : undefined,
+                  background: `radial-gradient(circle at center, ${languageColors[lang]}20 0%, transparent 70%)`,
                 }}
-              >
-                {languageLabels[lang]}
-              </button>
-            ))}
-          </div>
-
-          {/* Challenge Selector */}
-          <Select
-            value={selectedChallenge.id}
-            onValueChange={handleChallengeChange}
-          >
-            <SelectTrigger className="w-[240px] glass-card border-border/50">
-              <SelectValue placeholder="Select a challenge" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredChallenges.map((challenge) => (
-                <SelectItem key={challenge.id} value={challenge.id}>
-                  {challenge.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="flex gap-2">
-            <Button
-              onClick={runCode}
-              className="gap-2 bg-primary hover:bg-primary/90"
-            >
-              <Play className="h-4 w-4" />
-              Run
-            </Button>
-            <Button
-              onClick={handleReset}
-              variant="outline"
-              className="gap-2"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </Button>
-          </div>
+              />
+              <div className="relative">
+                <div 
+                  className="text-3xl font-bold mb-1"
+                  style={{ color: languageColors[lang] }}
+                >
+                  {counts[lang]}
+                </div>
+                <div className="text-sm font-medium text-foreground">{languageLabels[lang]}</div>
+                <div className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                  {languageDescriptions[lang].split(' ').slice(0, 3).join(' ')}...
+                </div>
+              </div>
+            </motion.button>
+          ))}
         </motion.div>
 
-        {/* Challenge Description */}
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="mb-6 p-4 glass-card rounded-xl border border-border/50"
+          className="flex flex-wrap items-center justify-center gap-4 mb-8"
         >
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-foreground">
-              {selectedChallenge.title}
-            </h3>
-            <span 
-              className="px-2 py-0.5 rounded text-xs font-medium"
-              style={{ 
-                backgroundColor: `${languageColors[selectedLanguage]}20`,
-                color: languageColors[selectedLanguage],
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search challenges..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-muted/50 border-border/50"
+            />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <div className="flex gap-1 p-1 glass-card rounded-lg border border-border/50">
+              {(['all', 'beginner', 'intermediate', 'advanced', 'expert'] as const).map((diff) => (
+                <button
+                  key={diff}
+                  onClick={() => setSelectedDifficulty(diff)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    selectedDifficulty === diff
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {diff === 'all' ? 'All Levels' : difficultyLabels[diff]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Challenge Grid - Bento Style */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        >
+          {filteredChallenges.map((challenge, index) => {
+            // Bento sizing logic - some cards larger
+            const isLarge = index % 7 === 0;
+            const isMedium = index % 5 === 2;
+            
+            return (
+              <motion.div
+                key={challenge.id}
+                variants={cardVariants}
+                className={`${isLarge ? 'md:col-span-2 md:row-span-2' : ''} ${isMedium ? 'lg:col-span-2' : ''}`}
+              >
+                <Link
+                  to={`/coding/${challenge.id}`}
+                  className="group block h-full"
+                >
+                  <motion.div
+                    whileHover={{ y: -4, scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    className={`relative h-full glass-card rounded-2xl border border-border/50 overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 ${
+                      isLarge ? 'p-8' : 'p-5'
+                    }`}
+                  >
+                    {/* Animated gradient background */}
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        background: `linear-gradient(135deg, ${languageColors[challenge.language]}10 0%, transparent 50%, ${difficultyColors[challenge.difficulty]}10 100%)`,
+                      }}
+                    />
+                    
+                    {/* Floating particles on hover */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                      <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700 delay-100" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="relative z-10 h-full flex flex-col">
+                      {/* Header badges */}
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span 
+                          className="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1"
+                          style={{ 
+                            backgroundColor: `${languageColors[challenge.language]}20`,
+                            color: languageColors[challenge.language],
+                          }}
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          {languageLabels[challenge.language]}
+                        </span>
+                        <span 
+                          className="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1"
+                          style={{ 
+                            backgroundColor: `${difficultyColors[challenge.difficulty]}20`,
+                            color: difficultyColors[challenge.difficulty],
+                          }}
+                        >
+                          <Zap className="h-3 w-3" />
+                          {difficultyLabels[challenge.difficulty]}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className={`font-bold text-foreground mb-2 group-hover:text-primary transition-colors ${
+                        isLarge ? 'text-2xl' : 'text-lg'
+                      }`}>
+                        {challenge.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className={`text-muted-foreground flex-1 ${
+                        isLarge ? 'text-base line-clamp-4' : 'text-sm line-clamp-2'
+                      }`}>
+                        {challenge.description}
+                      </p>
+
+                      {/* Tags */}
+                      {challenge.tags && challenge.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {challenge.tags.slice(0, isLarge ? 5 : 3).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 rounded-full text-xs bg-muted/50 text-muted-foreground"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                          {challenge.tags.length > (isLarge ? 5 : 3) && (
+                            <span className="px-2 py-0.5 rounded-full text-xs bg-muted/50 text-muted-foreground">
+                              +{challenge.tags.length - (isLarge ? 5 : 3)}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Action indicator */}
+                      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/30">
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground group-hover:text-primary transition-colors">
+                          <Code2 className="h-4 w-4" />
+                          <span>Start Challenge</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      </div>
+                    </div>
+
+                    {/* Corner decoration */}
+                    <div 
+                      className="absolute top-0 right-0 w-16 h-16 opacity-10"
+                      style={{
+                        background: `linear-gradient(135deg, ${languageColors[challenge.language]} 0%, transparent 100%)`,
+                      }}
+                    />
+                  </motion.div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Empty State */}
+        {filteredChallenges.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-16"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted/50 mb-4">
+              <Search className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">No challenges found</h3>
+            <p className="text-muted-foreground mb-4">
+              Try adjusting your filters or search query
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedLanguage('all');
+                setSelectedDifficulty('all');
               }}
             >
-              {languageLabels[selectedLanguage]}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {selectedChallenge.description}
-          </p>
-        </motion.div>
-
-        {/* Editor and Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="h-[calc(100vh-380px)] min-h-[500px] glass-card rounded-xl border border-border/50 overflow-hidden"
-        >
-          <ResizablePanelGroup direction="horizontal">
-            {/* Code Editor Panel */}
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <div className="h-full flex flex-col">
-                {/* Editor Tabs */}
-                <div className="flex items-center justify-between px-2 py-1 bg-background/50 border-b border-border/50">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setActiveTab('code')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                        activeTab === 'code'
-                          ? 'bg-primary/20 text-primary'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <Code2 className="h-4 w-4" />
-                      {languageLabels[selectedLanguage]}
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('css')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                        activeTab === 'css'
-                          ? 'bg-primary/20 text-primary'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <Code2 className="h-4 w-4" />
-                      CSS
-                    </button>
-                  </div>
-                  <EditorSettings 
-                    settings={editorSettings} 
-                    onChange={setEditorSettings}
-                  />
-                </div>
-
-                {/* Monaco Editor */}
-                <div className="flex-1">
-                  <Editor
-                    height="100%"
-                    language={getEditorLanguage()}
-                    value={activeTab === 'code' ? code : css}
-                    onChange={(value) => {
-                      if (activeTab === 'code') {
-                        setCode(value || '');
-                      } else {
-                        setCss(value || '');
-                      }
-                    }}
-                    theme={theme === 'dark' ? 'vs-dark' : 'light'}
-                    options={{
-                      minimap: { enabled: editorSettings.minimap },
-                      fontSize: editorSettings.fontSize,
-                      fontFamily: editorSettings.fontFamily,
-                      lineNumbers: editorSettings.lineNumbers ? 'on' : 'off',
-                      scrollBeyondLastLine: false,
-                      wordWrap: editorSettings.wordWrap ? 'on' : 'off',
-                      automaticLayout: true,
-                      padding: { top: 16 },
-                      tabSize: editorSettings.tabSize,
-                    }}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
-
-            <ResizableHandle withHandle />
-
-            {/* Preview and Console Panel */}
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <ResizablePanelGroup direction="vertical">
-                {/* Preview */}
-                <ResizablePanel defaultSize={70} minSize={30}>
-                  <div className="h-full flex flex-col">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-background/50 border-b border-border/50">
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Preview</span>
-                    </div>
-                    <div className="flex-1 bg-[#0f0f1a]">
-                      <iframe
-                        ref={iframeRef}
-                        title="Preview"
-                        className="w-full h-full border-0"
-                        sandbox="allow-scripts"
-                        srcDoc={previewHtml}
-                      />
-                    </div>
-                  </div>
-                </ResizablePanel>
-
-                <ResizableHandle withHandle />
-
-                {/* Console */}
-                <ResizablePanel defaultSize={30} minSize={15}>
-                  <div className="h-full flex flex-col bg-[#1a1a2e]">
-                    <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-                      <div className="flex items-center gap-2">
-                        <Terminal className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Console</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setConsoleLogs([])}
-                        className="h-6 px-2 text-xs"
-                      >
-                        Clear
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-auto p-2 font-mono text-sm">
-                      {consoleLogs.length === 0 ? (
-                        <p className="text-muted-foreground text-xs">
-                          Console output will appear here...
-                        </p>
-                      ) : (
-                        consoleLogs.map((log, index) => (
-                          <div
-                            key={index}
-                            className={`py-1 px-2 rounded ${
-                              log.type === 'error'
-                                ? 'text-red-400 bg-red-500/10'
-                                : log.type === 'warn'
-                                ? 'text-yellow-400 bg-yellow-500/10'
-                                : log.type === 'info'
-                                ? 'text-blue-400 bg-blue-500/10'
-                                : 'text-foreground'
-                            }`}
-                          >
-                            <span className="text-muted-foreground text-xs mr-2">
-                              {log.timestamp.toLocaleTimeString()}
-                            </span>
-                            {log.content}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </motion.div>
+              Clear Filters
+            </Button>
+          </motion.div>
+        )}
       </div>
     </div>
   );
