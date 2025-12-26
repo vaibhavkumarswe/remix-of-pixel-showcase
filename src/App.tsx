@@ -16,6 +16,8 @@ import AskAI from "./pages/AskAI";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Resources from "./pages/Resources";
+import Snippets from "./pages/Snippets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
               <Route path="/projects" element={<Projects />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/snippets" element={<Snippets />} />
+              <Route path="/resources" element={<Resources />} />
               <Route path="/games" element={<Games />} />
               <Route path="/coding" element={<CodingChallenges />} />
               <Route path="/coding/:challengeId" element={<ChallengeEditor />} />

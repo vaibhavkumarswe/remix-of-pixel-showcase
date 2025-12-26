@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MapPin, Calendar, Award, BookOpen } from 'lucide-react';
 import { GitHubStats } from '@/components/shared/GitHubStats';
+import { LeetCodeStats } from '@/components/shared/LeetCodeStats';
 import { SkillsRadar } from '@/components/shared/SkillsRadar';
 import { ResumeButton } from '@/components/shared/ResumePreview';
 
@@ -140,8 +141,13 @@ const About = () => {
         </div>
 
         {/* GitHub Stats */}
-        <div className="mb-24">
+        <div className="mb-12">
           <GitHubStats />
+        </div>
+
+        {/* LeetCode Stats */}
+        <div className="mb-24">
+          <LeetCodeStats />
         </div>
 
         {/* Skills Radar */}
