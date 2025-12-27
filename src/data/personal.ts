@@ -24,12 +24,12 @@ export const personalInfo: PersonalInfo = {
 // ==========================================
 
 export const bio = {
-  short: "I'm a passionate full-stack developer with expertise in React, TypeScript, and modern web technologies.",
-  
-  medium: "I'm a passionate full-stack developer specializing in building exceptional digital experiences. With years of experience in React, TypeScript, and Node.js, I create scalable, performant, and beautiful web applications.",
-  
-  long: `I'm a passionate full-stack developer with a deep love for crafting exceptional digital experiences. 
-  With over 5 years of experience in the tech industry, I specialize in building scalable, performant, 
+  short: "I'm a passionate senior software engineer with expertise in React, TypeScript, and modern web technologies.",
+
+  medium: "I'm a passionate senior software engineer specializing in building exceptional digital experiences. With years of experience in React, TypeScript, and Node.js, I create scalable, performant, and beautiful web applications.",
+
+  long: `I'm a passionate senior software engineer with a deep love for crafting exceptional digital experiences.
+  With over 5 years of experience in the tech industry, I specialize in building scalable, performant,
   and beautiful web applications using modern technologies like React, TypeScript, and Node.js.
   
   My journey in tech started with a curiosity about how things work on the web, and it has evolved 
