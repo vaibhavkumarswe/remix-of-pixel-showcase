@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MapPin, Calendar, Award, BookOpen } from 'lucide-react';
+import { MapPin, Calendar, Award, BookOpen, Heart, Code } from 'lucide-react';
 import { GitHubStats } from '@/components/shared/GitHubStats';
 import { LeetCodeStats } from '@/components/shared/LeetCodeStats';
 import { SkillsRadar } from '@/components/shared/SkillsRadar';
@@ -12,27 +12,27 @@ gsap.registerPlugin(ScrollTrigger);
 
 const timeline = [
   {
-    year: '2023 - Present',
-    role: 'Senior Frontend Engineer',
-    company: 'Tech Startup',
-    description: 'Leading frontend architecture for a SaaS platform serving 100K+ users.',
+    year: '2025 - Present',
+    role: 'Senior Software Engineer',
+    company: 'WebileApps',
+    description: 'Building frontend architecture for a Fintech SaaS platform serving 100K+ users.',
   },
   {
-    year: '2020 - 2023',
-    role: 'Frontend Developer',
-    company: 'Digital Agency',
-    description: 'Built 30+ client projects including e-commerce and enterprise dashboards.',
+    year: '2024 - 2025',
+    role: 'Senior Frontend Developer',
+    company: 'Swift Security',
+    description: 'Built AI Extension to enhance user security and privacy while browsing.',
   },
   {
-    year: '2018 - 2020',
-    role: 'Full Stack Developer',
-    company: 'Software Company',
-    description: 'Developed full-stack applications with React and Node.js.',
+    year: '2021 - 2024',
+    role: 'Software Developer',
+    company: 'Tata Consultancy Services (Pfizer)',
+    description: 'Developed web applications with React and Tailwind CSS for healthcare clients.',
   },
   {
-    year: '2016 - 2018',
+    year: '2021 - 2021',
     role: 'Junior Developer',
-    company: 'Web Studio',
+    company: 'Ayushya Healthcare',
     description: 'Started journey with HTML, CSS, and JavaScript.',
   },
 ];
@@ -75,7 +75,7 @@ const About = () => {
             About <span className="gradient-text">Me</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A passionate frontend developer with 8+ years of experience crafting
+            A passionate frontend developer with 4+ years of experience crafting
             beautiful, performant, and accessible web experiences.
           </p>
         </motion.div>
@@ -91,10 +91,7 @@ const About = () => {
             <div className="bento-card gradient-border">
               <h3 className="text-xl font-bold mb-4">The Journey</h3>
               <p className="text-muted-foreground leading-relaxed">
-                I started coding at 16, fascinated by how websites worked. What began
-                as curiosity evolved into a deep passion for creating intuitive digital
-                experiences. Today, I specialize in building scalable React applications
-                with a focus on performance, accessibility, and beautiful design.
+                My fascination with machines and how they work began with my father, who encouraged me to explore and build solutions since the 5th class. This curiosity eventually evolved into a passion for Robotics in College, where I discovered the joy of coding machines to work. Today, I specialize in building scalable Software Solutions that not only perform well but are also accessible and beautiful. With every project, I strive to create intuitive digital experiences that make a difference. Web Applications, Extensions, Mobile Apps - you name it, I've built it.
               </p>
             </div>
             <div className="bento-card gradient-border">
@@ -115,10 +112,12 @@ const About = () => {
             className="space-y-4"
           >
             {[
-              { icon: MapPin, label: 'Location', value: 'San Francisco, CA' },
-              { icon: Calendar, label: 'Experience', value: '8+ Years' },
+              { icon: MapPin, label: 'Location', value: 'Hyderabad, IN' },
+              { icon: Calendar, label: 'Experience', value: '4+ Years' },
               { icon: Award, label: 'Projects', value: '50+ Delivered' },
               { icon: BookOpen, label: 'Learning', value: 'Always' },
+              { icon: Heart, label: 'Passion', value: 'Software Solutions' },
+              { icon: Code, label: 'Languages', value: 'JavaScript, TypeScript, Python' },
             ].map((item, index) => (
               <motion.div
                 key={item.label}

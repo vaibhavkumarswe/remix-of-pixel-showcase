@@ -7,15 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'hello@developer.com' },
-  { icon: MapPin, label: 'Location', value: 'San Francisco, CA' },
+  { icon: Mail, label: 'Email', value: 'vaibhavkumarswe@gmail.com' },
+  { icon: MapPin, label: 'Location', value: 'Hyderabad, IN' },
   { icon: Clock, label: 'Response Time', value: 'Within 24 hours' },
 ];
 
 const socialLinks = [
-  { icon: Github, label: 'GitHub', href: '#' },
-  { icon: Linkedin, label: 'LinkedIn', href: '#' },
-  { icon: Twitter, label: 'Twitter', href: '#' },
+  { icon: Github, label: 'GitHub', href: 'https://github.com/vaibhavkumarswe' },
+  { icon: Linkedin, label: 'LinkedIn', href: 'https://www.linkedin.com/in/vaibhavkumarswe/' },
+  { icon: Twitter, label: 'Twitter', href: 'https://x.com/VaibhavKumarSWE' },
 ];
 
 const Contact = () => {

@@ -45,9 +45,9 @@ export const CTASection = () => {
             Let's Build Something
             <span className="block gradient-text">Amazing Together</span>
           </h2>
-          <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
+          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
             Whether you need a stunning landing page, a complex web application,
-            or a complete design system — I'm here to help bring your vision to life.
+            or a complete design system Architecture — I'm here to help bring your vision to life.
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}

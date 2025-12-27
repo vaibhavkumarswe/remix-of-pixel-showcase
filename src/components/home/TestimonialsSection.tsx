@@ -3,41 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FloatingCodeElement } from '@/components/shared/CodeBackground';
+import { testimonials } from '@/data/testimonials';
 
-const testimonials = [
-  {
-    id: 1,
-    name: 'Sarah Chen',
-    role: 'CTO at TechFlow',
-    avatar: '👩‍💻',
-    content: "Working with this developer was a game-changer. The attention to detail and code quality exceeded our expectations. Our app's performance improved by 40%.",
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Marcus Johnson',
-    role: 'Founder at StartupHub',
-    avatar: '👨‍💼',
-    content: "Exceptional work on our platform redesign. The animations and interactions are smooth, and our users love the new experience. Highly recommended!",
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Emily Rodriguez',
-    role: 'Product Lead at DesignCo',
-    avatar: '👩‍🎨',
-    content: "The best frontend developer I've worked with. Transforms designs into pixel-perfect, accessible, and performant code. A true professional.",
-    rating: 5
-  },
-  {
-    id: 4,
-    name: 'David Park',
-    role: 'Engineering Manager at ScaleAI',
-    avatar: '👨‍🔬',
-    content: "Delivered a complex dashboard project ahead of schedule. The component architecture is clean and maintainable. Will definitely work together again.",
-    rating: 5
-  }
-];
 
 export const TestimonialsSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -76,7 +43,7 @@ export const TestimonialsSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            Client <span className="gradient-text">Testimonials</span>
+            Workmates <span className="gradient-text">Testimonials</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             What people say about working with me
@@ -85,7 +52,7 @@ export const TestimonialsSection = () => {
 
         <div className="max-w-4xl mx-auto relative">
           {/* Testimonial Card */}
-          <div className="relative h-[300px] md:h-[250px]">
+          <div className="relative h-[450px] md:h-[400px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
@@ -107,7 +74,7 @@ export const TestimonialsSection = () => {
                       <span className="text-3xl">{testimonials[currentIndex].avatar}</span>
                       <div>
                         <p className="font-semibold text-foreground">{testimonials[currentIndex].name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonials[currentIndex].role}</p>
+                        <p className="text-sm text-muted-foreground">{testimonials[currentIndex].role}, {testimonials[currentIndex].company}</p>
                       </div>
                     </div>
                     <div className="flex gap-1">

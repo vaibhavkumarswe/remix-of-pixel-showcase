@@ -59,9 +59,10 @@ export interface Testimonial {
   name: string;
   role: string;
   company?: string;
-  avatar: string;
+  avatar?: string;
   content: string;
-  rating: number;
+  rating?: number;
+  image?: string;
 }
 
 // ==========================================
