@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gamepad2, RotateCcw, Trophy, Timer } from 'lucide-react';
+import { Gamepad2, RotateCcw, Trophy, Timer, Keyboard, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Memory Card Game
@@ -24,12 +24,7 @@ const MemoryGame = () => {
   const initializeGame = useCallback(() => {
     const shuffled = [...cardEmojis, ...cardEmojis]
       .sort(() => Math.random() - 0.5)
-      .map((emoji, index) => ({
-        id: index,
-        emoji,
-        isFlipped: false,
-        isMatched: false,
-      }));
+      .map((emoji, index) => ({ id: index, emoji, isFlipped: false, isMatched: false }));
     setCards(shuffled);
     setFlippedCards([]);
     setMoves(0);
@@ -38,9 +33,7 @@ const MemoryGame = () => {
     setIsPlaying(true);
   }, []);
 
-  useEffect(() => {
-    initializeGame();
-  }, [initializeGame]);
+  useEffect(() => { initializeGame(); }, [initializeGame]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -51,9 +44,7 @@ const MemoryGame = () => {
   }, [isPlaying, isComplete]);
 
   const handleCardClick = (id: number) => {
-    if (flippedCards.length === 2) return;
-    if (cards[id].isFlipped || cards[id].isMatched) return;
-
+    if (flippedCards.length === 2 || cards[id].isFlipped || cards[id].isMatched) return;
     const newCards = [...cards];
     newCards[id].isFlipped = true;
     setCards(newCards);
@@ -61,28 +52,21 @@ const MemoryGame = () => {
 
     if (flippedCards.length === 1) {
       setMoves(m => m + 1);
-      const firstCard = cards[flippedCards[0]];
-      const secondCard = newCards[id];
-
-      if (firstCard.emoji === secondCard.emoji) {
+      if (cards[flippedCards[0]].emoji === newCards[id].emoji) {
         setTimeout(() => {
-          const matchedCards = [...cards];
-          matchedCards[flippedCards[0]].isMatched = true;
-          matchedCards[id].isMatched = true;
-          setCards(matchedCards);
+          const matched = [...cards];
+          matched[flippedCards[0]].isMatched = true;
+          matched[id].isMatched = true;
+          setCards(matched);
           setFlippedCards([]);
-
-          if (matchedCards.every(c => c.isMatched)) {
-            setIsComplete(true);
-            setIsPlaying(false);
-          }
+          if (matched.every(c => c.isMatched)) { setIsComplete(true); setIsPlaying(false); }
         }, 500);
       } else {
         setTimeout(() => {
-          const resetCards = [...cards];
-          resetCards[flippedCards[0]].isFlipped = false;
-          resetCards[id].isFlipped = false;
-          setCards(resetCards);
+          const reset = [...cards];
+          reset[flippedCards[0]].isFlipped = false;
+          reset[id].isFlipped = false;
+          setCards(reset);
           setFlippedCards([]);
         }, 1000);
       }
@@ -90,68 +74,24 @@ const MemoryGame = () => {
   };
 
   return (
-    <div className="bento-card">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold">Memory Match</h3>
-        <Button variant="ghost" size="sm" onClick={initializeGame}>
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Reset
-        </Button>
+    <div className="glass-card rounded-3xl p-6 border border-border/50">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold flex items-center gap-2">🧠 Memory Match</h3>
+        <Button variant="ghost" size="sm" onClick={initializeGame} className="rounded-full"><RotateCcw className="h-4 w-4" /></Button>
       </div>
-
-      <div className="flex justify-center gap-6 mb-6">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Timer className="h-4 w-4" />
-          <span className="font-mono">{timer}s</span>
-        </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Trophy className="h-4 w-4" />
-          <span className="font-mono">{moves} moves</span>
-        </div>
+      <div className="flex justify-center gap-6 mb-4 text-sm">
+        <div className="flex items-center gap-2 text-muted-foreground"><Timer className="h-4 w-4" />{timer}s</div>
+        <div className="flex items-center gap-2 text-muted-foreground"><Trophy className="h-4 w-4" />{moves} moves</div>
       </div>
-
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {cards.map((card) => (
-          <motion.button
-            key={card.id}
-            onClick={() => handleCardClick(card.id)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`aspect-square rounded-xl text-2xl font-bold flex items-center justify-center transition-all ${
-              card.isFlipped || card.isMatched
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <AnimatePresence mode="wait">
-              {(card.isFlipped || card.isMatched) && (
-                <motion.span
-                  initial={{ rotateY: 90 }}
-                  animate={{ rotateY: 0 }}
-                  exit={{ rotateY: 90 }}
-                >
-                  {card.emoji}
-                </motion.span>
-              )}
-            </AnimatePresence>
+          <motion.button key={card.id} onClick={() => handleCardClick(card.id)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            className={`aspect-square rounded-xl text-2xl flex items-center justify-center transition-all ${card.isFlipped || card.isMatched ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'}`}>
+            {(card.isFlipped || card.isMatched) && <span>{card.emoji}</span>}
           </motion.button>
         ))}
       </div>
-
-      <AnimatePresence>
-        {isComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 p-4 rounded-xl bg-primary/10 text-center"
-          >
-            <p className="text-xl font-bold text-primary">🎉 Congratulations!</p>
-            <p className="text-muted-foreground">
-              Completed in {moves} moves and {timer} seconds!
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isComplete && <div className="mt-4 p-3 rounded-xl bg-primary/10 text-center"><p className="font-bold text-primary">🎉 Done in {moves} moves!</p></div>}
     </div>
   );
 };
@@ -165,74 +105,105 @@ const ReactionGame = () => {
 
   const startGame = () => {
     setGameState('ready');
-    const delay = Math.random() * 3000 + 2000;
-    
-    const timeout = setTimeout(() => {
-      setGameState('go');
-      setStartTime(Date.now());
-    }, delay);
-
-    return () => clearTimeout(timeout);
+    setTimeout(() => { setGameState('go'); setStartTime(Date.now()); }, Math.random() * 3000 + 2000);
   };
 
   const handleClick = () => {
-    if (gameState === 'waiting') {
-      startGame();
-    } else if (gameState === 'ready') {
-      setGameState('early');
-    } else if (gameState === 'go') {
+    if (gameState === 'waiting') startGame();
+    else if (gameState === 'ready') setGameState('early');
+    else if (gameState === 'go') {
       const time = Date.now() - startTime;
       setReactionTime(time);
       setGameState('result');
-      if (!bestTime || time < bestTime) {
-        setBestTime(time);
-      }
-    } else if (gameState === 'result' || gameState === 'early') {
-      setGameState('waiting');
-    }
+      if (!bestTime || time < bestTime) setBestTime(time);
+    } else setGameState('waiting');
   };
 
-  const getButtonContent = () => {
-    switch (gameState) {
-      case 'waiting':
-        return { bg: 'bg-secondary', text: 'Click to Start' };
-      case 'ready':
-        return { bg: 'bg-destructive', text: 'Wait for Green...' };
-      case 'go':
-        return { bg: 'bg-green-500', text: 'CLICK NOW!' };
-      case 'result':
-        return { bg: 'bg-primary', text: `${reactionTime}ms - Click to try again` };
-      case 'early':
-        return { bg: 'bg-destructive', text: 'Too early! Click to try again' };
-    }
-  };
-
-  const { bg, text } = getButtonContent();
+  const config = { waiting: { bg: 'bg-secondary', text: 'Click to Start' }, ready: { bg: 'bg-destructive', text: 'Wait...' }, go: { bg: 'bg-green-500', text: 'CLICK!' }, result: { bg: 'bg-primary', text: `${reactionTime}ms` }, early: { bg: 'bg-destructive', text: 'Too early!' } };
+  const { bg, text } = config[gameState];
 
   return (
-    <div className="bento-card">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold">Reaction Time</h3>
-        {bestTime && (
-          <div className="flex items-center gap-2 text-primary">
-            <Trophy className="h-4 w-4" />
-            <span className="font-mono">{bestTime}ms</span>
-          </div>
-        )}
+    <div className="glass-card rounded-3xl p-6 border border-border/50">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold">⚡ Reaction Time</h3>
+        {bestTime && <span className="text-primary text-sm font-mono">Best: {bestTime}ms</span>}
       </div>
+      <motion.button onClick={handleClick} whileTap={{ scale: 0.98 }} className={`w-full h-32 rounded-2xl ${bg} text-white font-bold text-xl`}>{text}</motion.button>
+    </div>
+  );
+};
 
-      <motion.button
-        onClick={handleClick}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className={`w-full h-40 rounded-xl ${bg} text-white font-bold text-xl transition-colors`}
-      >
-        {text}
-      </motion.button>
+// Typing Speed Test
+const TypingGame = () => {
+  const sentences = ["The quick brown fox jumps over the lazy dog", "Code is poetry written in logic", "React makes UI development a breeze"];
+  const [text, setText] = useState(sentences[0]);
+  const [input, setInput] = useState('');
+  const [started, setStarted] = useState(false);
+  const [startTime, setStartTime] = useState(0);
+  const [wpm, setWpm] = useState(0);
 
-      <p className="text-sm text-muted-foreground text-center mt-4">
-        Test your reflexes! Click as fast as you can when the box turns green.
-      </p>
+  const reset = () => { setText(sentences[Math.floor(Math.random() * sentences.length)]); setInput(''); setStarted(false); setWpm(0); };
+
+  const handleInput = (val: string) => {
+    if (!started) { setStarted(true); setStartTime(Date.now()); }
+    setInput(val);
+    if (val === text) {
+      const mins = (Date.now() - startTime) / 60000;
+      setWpm(Math.round((text.split(' ').length) / mins));
+    }
+  };
+
+  return (
+    <div className="glass-card rounded-3xl p-6 border border-border/50">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold flex items-center gap-2"><Keyboard className="h-5 w-5" /> Typing Speed</h3>
+        <Button variant="ghost" size="sm" onClick={reset} className="rounded-full"><RotateCcw className="h-4 w-4" /></Button>
+      </div>
+      <p className="text-muted-foreground mb-3 font-mono text-sm leading-relaxed">{text}</p>
+      <input value={input} onChange={e => handleInput(e.target.value)} placeholder="Start typing..." disabled={wpm > 0}
+        className="w-full p-3 rounded-xl bg-muted/50 border border-border/50 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+      {wpm > 0 && <div className="mt-3 text-center text-primary font-bold">🏆 {wpm} WPM</div>}
+    </div>
+  );
+};
+
+// Word Scramble
+const WordScramble = () => {
+  const words = ['REACT', 'TYPESCRIPT', 'JAVASCRIPT', 'DEVELOPER', 'FRONTEND'];
+  const [word, setWord] = useState('');
+  const [scrambled, setScrambled] = useState('');
+  const [guess, setGuess] = useState('');
+  const [score, setScore] = useState(0);
+  const [message, setMessage] = useState('');
+
+  const newWord = useCallback(() => {
+    const w = words[Math.floor(Math.random() * words.length)];
+    setWord(w);
+    setScrambled(w.split('').sort(() => Math.random() - 0.5).join(''));
+    setGuess('');
+    setMessage('');
+  }, []);
+
+  useEffect(() => { newWord(); }, [newWord]);
+
+  const check = () => {
+    if (guess.toUpperCase() === word) { setScore(s => s + 1); setMessage('✅ Correct!'); setTimeout(newWord, 1000); }
+    else setMessage('❌ Try again');
+  };
+
+  return (
+    <div className="glass-card rounded-3xl p-6 border border-border/50">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold flex items-center gap-2"><Shuffle className="h-5 w-5" /> Word Scramble</h3>
+        <span className="text-primary font-mono">Score: {score}</span>
+      </div>
+      <div className="text-3xl font-bold text-center mb-4 tracking-widest text-primary">{scrambled}</div>
+      <div className="flex gap-2">
+        <input value={guess} onChange={e => setGuess(e.target.value)} onKeyDown={e => e.key === 'Enter' && check()}
+          className="flex-1 p-3 rounded-xl bg-muted/50 border border-border/50 uppercase font-mono focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your guess..." />
+        <Button onClick={check} className="rounded-xl">Check</Button>
+      </div>
+      {message && <p className="text-center mt-3 font-medium">{message}</p>}
     </div>
   );
 };
@@ -240,54 +211,22 @@ const ReactionGame = () => {
 const Games = () => {
   return (
     <div className="min-h-screen py-24 px-6">
-      <div className="container mx-auto max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
+      <div className="container mx-auto max-w-6xl">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-4">
             <Gamepad2 className="h-4 w-4 text-accent" />
             <span className="text-sm font-medium text-accent">Interactive Playground</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Fun & <span className="gradient-text">Games</span>
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A collection of mini-games I've built for fun. Test your skills
-            and see if you can beat the high scores!
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Fun & <span className="gradient-text">Games</span></h1>
+          <p className="text-muted-foreground max-w-xl mx-auto">Mini-games built for fun. Test your skills!</p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <MemoryGame />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <ReactionGame />
-          </motion.div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><MemoryGame /></motion.div>
+          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><ReactionGame /></motion.div>
+          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><TypingGame /></motion.div>
+          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><WordScramble /></motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-12 text-center"
-        >
-          <p className="text-muted-foreground">
-            More games coming soon! Have an idea? Let me know.
-          </p>
-        </motion.div>
       </div>
     </div>
   );
