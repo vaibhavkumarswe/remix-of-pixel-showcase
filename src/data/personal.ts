@@ -10,11 +10,11 @@ import type { PersonalInfo, FAQItem } from './types';
 // ==========================================
 
 export const personalInfo: PersonalInfo = {
-  name: 'Developer Name',
-  title: 'Full Stack Developer',
+  name: 'Vaibhav Kumar',
+  title: 'Senior Software Engineer',
   tagline: 'Crafting digital experiences with code & creativity',
-  email: 'hello@example.com',
-  location: 'San Francisco, CA',
+  email: 'vaibhavkumarswe@gmail.com',
+  location: 'Hyderabad, IN',
   availability: 'Open to opportunities',
   resumeUrl: '/resume.pdf',
 };
