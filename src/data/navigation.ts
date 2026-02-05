@@ -10,16 +10,14 @@ import type { NavItem } from './types';
 // ==========================================
 
 export const mainNavItems: NavItem[] = [
-  { name: 'Home', path: '/', description: 'Welcome to my portfolio' },
-  { name: 'About', path: '/about', description: 'Learn more about me' },
-  { name: 'Projects', path: '/projects', description: 'View my work' },
+  { name: 'Home', path: '/', description: 'Developer hub home' },
+  { name: 'Playground', path: '/playground', description: 'Code playground IDE' },
+  { name: 'Challenges', path: '/coding', description: 'Practice coding challenges' },
   { name: 'Blog', path: '/blog', description: 'Technical articles' },
   { name: 'Snippets', path: '/snippets', description: 'Useful code snippets' },
-  { name: 'Coding', path: '/coding', description: 'Practice coding challenges' },
-  { name: 'Ask AI', path: '/ask-ai', description: 'Chat with AI about me' },
-  { name: 'Resources', path: '/resources', description: 'Tools & resources I use' },
+  { name: 'Resources', path: '/resources', description: 'Tools & resources' },
   { name: 'Games', path: '/games', description: 'Play interactive games' },
-  { name: 'Contact', path: '/contact', description: 'Get in touch' },
+  { name: 'Ask AI', path: '/ask-ai', description: 'Chat with AI' },
 ];
 
 // ==========================================
@@ -28,9 +26,9 @@ export const mainNavItems: NavItem[] = [
 
 export const footerNavItems: NavItem[] = [
   { name: 'Home', path: '/' },
-  { name: 'About', path: '/about' },
-  { name: 'Projects', path: '/projects' },
-  { name: 'Contact', path: '/contact' },
+  { name: 'Playground', path: '/playground' },
+  { name: 'Challenges', path: '/coding' },
+  { name: 'Blog', path: '/blog' },
 ];
 
 // ==========================================
@@ -38,14 +36,13 @@ export const footerNavItems: NavItem[] = [
 // ==========================================
 
 export const quickLinks: NavItem[] = [
-  { name: 'View Projects', path: '/projects' },
-  { name: 'About Me', path: '/about' },
-  { name: 'Ask AI', path: '/ask-ai' },
+  { name: 'Coding Playground', path: '/playground' },
+  { name: 'Coding Challenges', path: '/coding' },
+  { name: 'Tech Blog', path: '/blog' },
   { name: 'Code Snippets', path: '/snippets' },
   { name: 'Resources', path: '/resources' },
-  { name: 'Get in Touch', path: '/contact' },
-  { name: 'Play Games', path: '/games' },
-  { name: 'Coding Challenges', path: '/coding' },
+  { name: 'Dev Games', path: '/games' },
+  { name: 'Ask AI', path: '/ask-ai' },
 ];
 
 // ==========================================
@@ -62,16 +59,11 @@ export const externalLinks: ExternalLink[] = [
   { 
     name: 'GitHub', 
     url: 'https://github.com', 
-    description: 'View my repositories' 
-  },
-  { 
-    name: 'LinkedIn', 
-    url: 'https://linkedin.com', 
-    description: 'Connect with me' 
+    description: 'View repositories' 
   },
   { 
     name: 'Twitter', 
     url: 'https://twitter.com', 
-    description: 'Follow me on Twitter' 
+    description: 'Follow for updates' 
   },
 ];
