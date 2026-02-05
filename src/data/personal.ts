@@ -10,7 +10,7 @@ import type { PersonalInfo, FAQItem } from './types';
 // ==========================================
 
 export const personalInfo: PersonalInfo = {
-  name: 'Vaibhav Kumar',
+  name: 'Inspect code',
   title: 'Senior Software Engineer',
   tagline: 'Crafting digital experiences with code & creativity',
   email: 'vaibhavkumarswe@gmail.com',
